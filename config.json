@@ -1,0 +1,11 @@
+{
+  "pipe": {
+    "name": "asqu-mcp-ipc"
+  },
+  "ui": {
+    "theme": "dark",
+    "autoFocus": true,
+    "autoHide": true
+  },
+  "tauriPath": ""
+}

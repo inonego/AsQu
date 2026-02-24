@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+server/build/
+app/src-tauri/target/
+
+# Tauri generated
+app/src-tauri/gen/
+
+# Lock files (optional - uncomment to track)
+# package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Env
+.env
+.env.*
+
+# Logs
+*.log

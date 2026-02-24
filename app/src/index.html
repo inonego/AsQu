@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AsQu</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app" id="app">
+  <!-- Title bar -->
+  <div class="titlebar">
+    <div class="titlebar-title">AsQu</div>
+    <div class="titlebar-actions">
+      <button class="titlebar-btn" id="btn-settings" title="Settings">&#9881;</button>
+      <button class="titlebar-btn" id="btn-minimize" title="Minimize">&#8211;</button>
+      <button class="titlebar-btn" id="btn-close" title="Close">&#10005;</button>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">Sessions</div>
+      <div class="sessions-list" id="sessions-list"></div>
+    </div>
+
+    <!-- Center panel -->
+    <div class="center-panel">
+      <!-- Main tabs -->
+      <div class="tabs-bar">
+        <div class="tab active" data-tab="pending" id="tab-pending">Pending <span class="tab-count" id="pending-count">(0)</span></div>
+        <div class="tab" data-tab="history" id="tab-history">History <span class="tab-count" id="history-count">(0)</span></div>
+      </div>
+
+      <!-- Pending view -->
+      <div id="view-pending" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+        <div class="question-tabs-row">
+          <div class="question-tabs" id="question-tabs"></div>
+          <button class="viewall-tab-btn" id="btn-viewall">View All</button>
+        </div>
+        <div class="question-area" id="question-area">
+          <div class="empty-state" id="empty-pending">
+            <div class="empty-state-icon">&#10003;</div>
+            <div class="empty-state-text">All caught up! No pending questions.</div>
+          </div>
+        </div>
+        <div class="submit-bar" id="submit-bar" style="display:none;">
+          <button class="btn btn-dismiss" id="btn-dismiss-q">Dismiss</button>
+          <div style="flex:1"></div>
+          <button class="btn btn-primary" id="btn-submit">Submit Answer</button>
+        </div>
+      </div>
+
+      <!-- History view -->
+      <div id="view-history" style="display:none; flex-direction:column; flex:1; overflow:hidden;">
+        <div class="history-list" id="history-list"></div>
+      </div>
+    </div>
+
+    <!-- Inspector -->
+    <div class="inspector">
+      <div class="inspector-header">Inspector</div>
+      <div class="inspector-empty" id="inspector-empty">Click a choice to inspect</div>
+      <div class="inspector-content" id="inspector-content" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <span class="status-dot"></span>
+    <span id="status-sessions">0 active sessions</span>
+    <span>|</span>
+    <span id="status-pending">Total pending: 0</span>
+    <span style="margin-left:auto;">AsQu v0.0.1</span>
+  </div>
+</div>
+
+<!-- Settings overlay -->
+<div class="settings-overlay" id="settings-overlay">
+  <div class="settings-panel anim-scale">
+    <div class="settings-title">Settings</div>
+    <div class="settings-group">
+      <div class="settings-group-title">Appearance</div>
+      <div class="settings-row">
+        <span class="settings-label">Theme</span>
+        <span style="font-size:13px; color: var(--subtext);">Dark (default)</span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Auto-focus on new question</span>
+        <div class="toggle on" id="toggle-autofocus"><div class="toggle-thumb"></div></div>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Auto-hide when all done</span>
+        <div class="toggle on" id="toggle-autohide"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+    <div class="settings-group">
+      <div class="settings-group-title">Window</div>
+      <div class="settings-row">
+        <span class="settings-label">Close button minimizes to tray</span>
+        <div class="toggle on" id="toggle-close-to-tray"><div class="toggle-thumb"></div></div>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn btn-secondary" id="btn-settings-cancel">Cancel</button>
+      <button class="btn btn-primary" id="btn-settings-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- View All overlay -->
+<div class="viewall-overlay" id="viewall-overlay">
+  <div class="viewall-panel anim-scale" id="viewall-panel"></div>
+</div>
+
+<!-- Context menu -->
+<div class="context-menu" id="context-menu">
+  <div class="context-menu-item danger" id="ctx-delete-session">Delete Session</div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

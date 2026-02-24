@@ -1,0 +1,25 @@
+{
+  "name": "asqu-mcp-server",
+  "version": "0.0.1",
+  "description": "Async Question Queue MCP server - non-blocking question management for Claude Code",
+  "type": "module",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "node build/index.js",
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "clean": "rm -rf build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
