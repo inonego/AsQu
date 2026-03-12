@@ -11,14 +11,24 @@ use tauri::{AppHandle, Manager};
 use tokio::sync::Notify;
 use tracing::warn;
 
+use crate::state::WebviewReadyState;
+
 // Monotonic counter — only the most recent show call reverts always-on-top.
 // Prevents N stale set_always_on_top(false) tasks when called rapidly.
 static ALWAYS_ON_TOP_GEN: AtomicU64 = AtomicU64::new(0);
 
 // ------------------------------------------------------------
 // Show the main window with focus (always-on-top dance)
+// Defers the show if the webview hasn't finished loading yet.
 // ------------------------------------------------------------
 pub fn show_window_internal(app: &AppHandle, close_flag: &Arc<AtomicBool>) {
+    // Check if the webview frontend has signalled readiness
+    let webview_state: tauri::State<WebviewReadyState> = app.state();
+    if !webview_state.ready.load(Ordering::Acquire) {
+        webview_state.pending_show.store(true, Ordering::Release);
+        return;
+    }
+
     let Some(win) = app.get_webview_window("main") else {
         warn!("Main window not found");
         return;

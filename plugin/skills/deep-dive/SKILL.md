@@ -7,16 +7,16 @@ description: >
 
 Enter plan mode, then run an infinite AsQu questioning loop.
 
+## Goal
+
+- **goal = infinite**: keep asking until user explicitly stops.
+
 ## Flow
 
 1. Enter plan mode via `EnterPlanMode`.
 2. Resolve topic: check arguments → conversation context → ask via AsQu.
-3. Loop until stopped:
+3. Loop until user explicitly stops:
    - Generate follow-up questions based on all answers so far.
    - Submit via AsQu `ask`, wait via `wait_for_answers`.
-   - On any answer containing a stop word → exit loop.
+   - Continue generating until user explicitly tells you to stop.
 4. Write a plan summarizing collected Q&A and insights → `ExitPlanMode`.
-
-## Stop Words
-
-Exit the loop when any answer text contains: `stop`, `done`, `quit`, `exit`.

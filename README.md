@@ -16,7 +16,9 @@
   Questions queue up in a desktop app — answer at your own pace, no more idle waiting.
 </p>
 
----
+<p align="center">
+  <img src="image.png" alt="AsQu Screenshot">
+</p>
 
 ## What is AsQu?
 

@@ -100,21 +100,101 @@ impl From<PriorityInput> for Priority {
     }
 }
 
+// ------------------------------------------------------------
+// Custom deserializer: accepts Vec<AskQuestionItem> OR a JSON-encoded
+// string of the same. Handles double-serialization from MCP clients
+// that mistakenly stringify the array (e.g. Claude Code with non-ASCII).
+// ------------------------------------------------------------
+fn deserialize_questions<'de, D>(deserializer: D) -> Result<Vec<AskQuestionItem>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::{self, SeqAccess, Visitor};
+    use std::fmt;
+
+    struct QuestionsVisitor;
+
+    impl<'de> Visitor<'de> for QuestionsVisitor {
+        type Value = Vec<AskQuestionItem>;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("an array of questions, or a JSON-encoded string of an array")
+        }
+
+        fn visit_seq<A>(self, seq: A) -> Result<Vec<AskQuestionItem>, A::Error>
+        where
+            A: SeqAccess<'de>,
+        {
+            serde::Deserialize::deserialize(de::value::SeqAccessDeserializer::new(seq))
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Vec<AskQuestionItem>, E>
+        where
+            E: de::Error,
+        {
+            serde_json::from_str(v).map_err(de::Error::custom)
+        }
+    }
+
+    deserializer.deserialize_any(QuestionsVisitor)
+}
+
+// ------------------------------------------------------------
+// Custom deserializer: accepts Vec<String> OR a JSON-encoded string of the
+// same. Handles double-serialization from MCP clients (e.g. Claude Code).
+// ------------------------------------------------------------
+fn deserialize_string_vec<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::{self, SeqAccess, Visitor};
+    use std::fmt;
+
+    struct StringVecVisitor;
+
+    impl<'de> Visitor<'de> for StringVecVisitor {
+        type Value = Vec<String>;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("an array of strings, or a JSON-encoded string of an array")
+        }
+
+        fn visit_seq<A>(self, seq: A) -> Result<Vec<String>, A::Error>
+        where
+            A: SeqAccess<'de>,
+        {
+            serde::Deserialize::deserialize(de::value::SeqAccessDeserializer::new(seq))
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Vec<String>, E>
+        where
+            E: de::Error,
+        {
+            serde_json::from_str(v).map_err(de::Error::custom)
+        }
+    }
+
+    deserializer.deserialize_any(StringVecVisitor)
+}
+
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct AskParams {
     /// Array of questions to submit
+    #[serde(deserialize_with = "deserialize_questions")]
     pub questions: Vec<AskQuestionItem>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct IdsParams {
     /// Question IDs to check
+    #[serde(deserialize_with = "deserialize_string_vec")]
     pub ids: Vec<String>,
 }
 
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct WaitParams {
     /// Question IDs to wait for
+    #[serde(deserialize_with = "deserialize_string_vec")]
     pub ids: Vec<String>,
 
     /// Wait for all questions (true) or any (false)
@@ -156,6 +236,7 @@ impl From<StatusInput> for QuestionStatus {
 #[derive(Debug, serde::Deserialize, schemars::JsonSchema)]
 pub struct DismissParams {
     /// Question IDs to dismiss
+    #[serde(deserialize_with = "deserialize_string_vec")]
     pub ids: Vec<String>,
 
     /// Reason for dismissal

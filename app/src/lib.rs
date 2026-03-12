@@ -12,7 +12,7 @@ use std::env;
 use std::path::Path;
 use std::sync::{atomic::AtomicBool, Arc};
 
-use tauri::Emitter;
+use tauri::{Emitter, Manager};
 use tokio::sync::Mutex;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
@@ -102,14 +102,27 @@ pub fn run() {
         .plugin(tauri_plugin_shell::init())
         .manage(shared_state.clone())
         .manage(state::WindowClosedFlag(close_flag.clone()))
+        .manage(state::WebviewReadyState {
+            ready: std::sync::atomic::AtomicBool::new(false),
+            pending_show: std::sync::atomic::AtomicBool::new(false),
+        })
         .invoke_handler(tauri::generate_handler![
             ui::commands::submit_answer,
             ui::commands::dismiss_question,
             ui::commands::get_state,
+            ui::commands::notify_ready,
             ui::commands::show_window,
             ui::commands::hide_window,
         ])
         .setup(move |app| {
+            // Warm up: briefly show then hide the window.
+            // On Windows, WebView2 may not fully initialize for a window
+            // that was never shown, causing subsequent win.show() to fail.
+            if let Some(win) = app.get_webview_window("main") {
+                let _ = win.show();
+                let _ = win.hide();
+            }
+
             // Close handler (hide window, MCP server stays running)
             ui::window::setup_close_handler(app.handle(), close_flag.clone(), close_notify);
 

@@ -52,6 +52,11 @@ async function init() {
   setupTauriEvents();
   await loadInitialState();
   renderAll();
+
+  // Signal backend that the webview is ready to be shown
+  if (window.__TAURI__) {
+    await window.__TAURI__.core.invoke('notify_ready');
+  }
 }
 
 init();

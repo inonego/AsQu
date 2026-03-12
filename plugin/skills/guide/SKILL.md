@@ -20,26 +20,29 @@ Re-read these instructions and load tools before first use.
 
 #### ask
 
-- **MUST** — batch size by current pending count:
+- **MUST** — determine **goal**: total questions across all rounds (e.g., user says "ask 200 questions" → goal=200).
+- **MUST** — determine **per-round**: questions to submit in each round (e.g., 8 per round).
+- **MUST** — split each **per-round** batch into multiple **batches** based on current **pending** count:
 
-| Pending | Batch size |
-|---------|------------|
-| 0-2     | 1          |
-| 3-4     | 2          |
-| 5-6     | 3          |
-| 7+      | 4 (max)    |
+| Currently pending | Next batch size |
+|-------------------|-----------------|
+| 0-2               | 1               |
+| 3-4               | 2               |
+| 5-6               | 3               |
+| 7+                | 4 (max)         |
 
-- **MUST** — when user says "ask N questions": N = **total count**, still batch per above table.
-- **NEVER** — dump all questions in a single call.
+- **NEVER** — submit all per-round questions in a single call.
 
 ```
-Example: 8 questions total
+Example: goal=200, per-round=8
+Round 1:
   ask([q1])       → pending=1
   ask([q2])       → pending=2
   ask([q3])       → pending=3
   ask([q4,q5])    → pending=5
   ask([q6,q7,q8]) → pending=8
-  wait([q1..q8])
+  wait([q1..q8])   → collect answers
+Round 2: (repeat with q9-q16, etc.)
 ```
 
 #### wait_for_answers
@@ -80,8 +83,9 @@ NEVER ask(q1) → wait([q1]) → ask(q2) → wait([q2])
 #### Instant
 
 - **MUST** — check `instant_answers` in every tool response. Process them, then `wait` again for remaining IDs.
-- **SHOULD** — mark key questions or the last of each category group `instant: true` to feed follow-ups while others are pending.
+- **SHOULD** — mark key questions or last question of each category as `instant: true` to enable follow-ups while waiting.
+- **NOTE** — new follow-up questions from `instant_answers` may change per-round.
 
 #### Recovery
 
-- **MUST** — if `wait_for_answers()` returns early with pending questions (window closed), immediately use `AskUserQuestion` to ask whether to reopen via `open_ui`.
+- **MUST** — if `wait_for_answers()` returns early with pending questions (window closed), use `AskUserQuestion` (not `ask`) to ask whether to reopen via `open_ui`.

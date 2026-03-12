@@ -24,6 +24,15 @@ pub type SharedState = Arc<Mutex<AppState>>;
 pub struct WindowClosedFlag(pub Arc<AtomicBool>);
 
 // ============================================================
+// WebviewReadyState — Tracks whether the frontend has initialized
+// ============================================================
+
+pub struct WebviewReadyState {
+    pub ready: AtomicBool,
+    pub pending_show: AtomicBool,
+}
+
+// ============================================================
 // AppState
 // ============================================================
 

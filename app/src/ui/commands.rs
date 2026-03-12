@@ -5,7 +5,9 @@
 use serde_json::Value;
 use tauri::{Manager, State};
 
-use crate::state::{AppState, SharedState};
+use std::sync::atomic::Ordering;
+
+use crate::state::{AppState, SharedState, WebviewReadyState};
 use crate::types::QuestionAnswer;
 
 // ============================================================
@@ -73,6 +75,29 @@ pub async fn get_state(state: State<'_, SharedState>) -> Result<Value, String> {
     Ok(serde_json::json!({
         "questions": questions,
     }))
+}
+
+// ============================================================
+// Webview Readiness
+// ============================================================
+
+// ------------------------------------------------------------
+// Called by the frontend after initialization is complete.
+// Processes any buffered show requests.
+// ------------------------------------------------------------
+#[tauri::command]
+pub async fn notify_ready(
+    app: tauri::AppHandle,
+    ready_state: tauri::State<'_, WebviewReadyState>,
+    flag: tauri::State<'_, crate::state::WindowClosedFlag>,
+) -> Result<(), String> {
+    ready_state.ready.store(true, Ordering::Release);
+
+    // If a show was requested before the webview was ready, process it now
+    if ready_state.pending_show.swap(false, Ordering::AcqRel) {
+        super::window::show_window_internal(&app, &flag.0);
+    }
+    Ok(())
 }
 
 // ============================================================
